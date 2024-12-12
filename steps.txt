@@ -1,0 +1,51 @@
+# Installations for local development
+
+Initial config
+    WSL --install # to use ubuntu/linux promtp in windows
+    En WSL
+        sudo apt install make
+        sudo apt-get update
+        sudo apt install python3.11-venv
+
+# Enviroment creation
+## Version WSL
+
+Enviroment creation and activation
+Using the /home/sstedoldi (user) path
+    $ python3 -m venv ~/.marketing
+
+Enviroment activation
+    $ source ~/.marketing/bin/activate
+
+# Create scaffolding
+
+pesca/
+    ├── Makefile
+    ├── Dockerfile
+    ├── requirements.txt
+    ├── notebook.ipynb
+    ├── app.py
+    ├── train.py
+    ├── config.py
+    ├── modules/
+    │   ├── ...
+    │   ├── ...
+    │   ├── ...   
+    ├── docs/
+    │   └── ...   
+    ├── static/
+    │   └── ...
+    └── test/
+        └── ...
+
+See if app/train and modules are necessary
+
+Before executing make steps, source must be defined 
+    source ~/.marketing/bin/activate
+
+## Version Anaconda para notebook
+
+conda create --name marketing python=3.11
+conda install --yes --file requirements.txt
+
+Aprovechando el requirements.txt creado
