@@ -163,6 +163,121 @@ def plot_distributions(data, target, title_suffix='', sample_frac=0.2, transform
 
         plt.show()
 
+def plot_distributions_by_cluster(data, clusters_dict, 
+                                  target='cluster', top_n=5, 
+                                  sample_frac=0.2, 
+                                  transform='log1p', to_log=[],
+                                  cluster_stats=None,
+                                  variable_config=None):
+
+    data_sampled = data.sample(frac=sample_frac, random_state=42)
+    
+    i = 0  # Para asignar colores
+    
+    # Recorrer los clusters y sus variables relevantes
+    for cluster, features in clusters_dict.items():
+
+        print(f"\nComparando Cluster {cluster} contra el resto")
+
+        if cluster_stats is not None:
+            cluster_info = cluster_stats.loc[cluster_stats[target] == cluster].copy()
+            cluster_info['Casos %'] = 100*(cluster_info['venta_c'] + cluster_info['no-venta_c'])/len(data)
+            cluster_info['Ventas %'] = 100*cluster_info['venta_p']
+            cluster_info['No-ventas %'] = 100*cluster_info['no-venta_p']
+            cluster_info['Ventas sobre el total %'] = 100*cluster_info['venta_c']/cluster_stats['venta_c'].sum()
+
+            print(cluster_info[['Casos %','Ventas %','No-ventas %','Ventas sobre el total %']].to_markdown())
+        
+        # Tomar las N variables más relevantes para este cluster
+        relevant_features = features[:top_n]
+        
+        # **Crear una copia temporal del DataFrame para este cluster**
+        data_for_plot = data_sampled.copy()
+        
+        # # **Aplicar transformaciones solo a las variables relevantes**
+        # if cluster != 'XXXX': # para cluster quasi-negativo
+        #     if variable_config is not None:
+        #         # Variables a convertir a float
+        #         vars_to_float = [var for var in relevant_features if var in variable_config.to_float]
+        #         data_for_plot = convert_to_float(data_for_plot, vars_to_float)
+                
+        #         # Variables a convertir a int
+        #         vars_to_int = [var for var in relevant_features if var in variable_config.to_int]
+        #         data_for_plot = convert_to_int(data_for_plot, vars_to_int)
+                
+        #         # Variables a recortar high 5%
+        #         vars_cut_high_5 = [var for var in relevant_features if var in variable_config.to_cut_high_5]
+        #         data_for_plot = cut_high_5(data_for_plot, vars_cut_high_5)
+                
+        #         # Variables a recortar high 10%
+        #         vars_cut_high_10 = [var for var in relevant_features if var in variable_config.to_cut_high_10]
+        #         data_for_plot = cut_high_10(data_for_plot, vars_cut_high_10)
+                
+        #         # Variables a recortar low 5%
+        #         vars_cut_low_5 = [var for var in relevant_features if var in variable_config.to_cut_low_5]
+        #         data_for_plot = cut_low_5(data_for_plot, vars_cut_low_5)
+                
+        #         # Variables a recortar low 10%
+        #         vars_cut_low_10 = [var for var in relevant_features if var in variable_config.to_cut_low_10]
+        #         data_for_plot = cut_low_10(data_for_plot, vars_cut_low_10)
+                
+        #         # Variables a recortar low-high (5% y 95%)
+        #         vars_cut_low_high = [var for var in relevant_features if var in variable_config.to_cut_low_high]
+        #         data_for_plot = cut_low_high(data_for_plot, vars_cut_low_high)
+        
+        # Crear una columna nueva que identifique si es el cluster actual o el resto
+        data_for_plot['comparison'] = data_for_plot[target].apply(lambda x: f'{cluster}' if x == cluster else 'Resto')
+        
+        # colores
+        i = i+1 if i < 9 else 1
+
+        for feature in relevant_features:
+            plt.figure(figsize=(10, 4))
+            palette = {f'{cluster}': sns.color_palette()[i], 'Resto': sns.color_palette()[0]}
+            
+            # Determinar si la variable es discreta o continua
+            if is_int(data_for_plot, feature):
+                # Graficar distribución de frecuencias relativas para variable discreta
+                sns.histplot(data=data_for_plot, x=feature, hue='comparison', multiple="dodge", stat="probability", 
+                            common_norm=False, palette=palette)
+                plt.title(f'Distribución de {feature} ({cluster} vs Resto)')
+                plt.ylabel('Frecuencia relativa')
+                plt.show()
+            
+            # else: # analisis sin transformaciones
+                # # Si es continua, aplicar transformaciones si es necesario
+                # if feature in variable_config.to_log and transform in ['log1p', 'sqrt']:
+                #     # Aplicar transformación
+                #     if transform == 'log1p':
+                #         positive_values = data_for_plot[feature] > 0
+                #         data_for_plot = data_for_plot[positive_values]  # Filtrar valores positivos
+                #         transformed_feature = np.log1p(data_for_plot[feature])
+                #         title_t = f'Distribución Transformada Log1p de {feature} ({cluster} vs Resto)'
+                #         x_label = f'Log1p({feature})'
+                #     elif transform == 'sqrt':
+                #         non_negative_values = data_for_plot[feature] - data_for_plot[feature].min() + 1
+                #         transformed_feature = np.sqrt(non_negative_values)
+                #         title_t = f'Distribución Transformada Raíz Cuadrada de {feature} ({cluster} vs Resto)'
+                #         x_label = f'Sqrt({feature})'
+                    
+                #     # Plotear la distribución transformada
+                #     df_transformed = pd.DataFrame({
+                #         feature: transformed_feature, 
+                #         'comparison': data_for_plot['comparison']
+                #     })
+                #     sns.histplot(data=df_transformed, x=feature, hue='comparison', kde=True, element='step', stat="probability", 
+                #                 common_norm=False, palette=palette)
+                #     plt.title(title_t)
+                #     plt.xlabel(x_label)
+                #     plt.show()
+                
+            else:
+                # Graficar distribución normal si no se necesita transformación
+                sns.histplot(data=data_for_plot, x=feature, hue='comparison', kde=True, element='step', stat="probability", 
+                            common_norm=False, palette=palette)
+                plt.title(f'Distribución de {feature} ({cluster} vs Resto)')
+                plt.show()
+
 def distanceMatrix(model, X):
     """
     Calcula una matriz de distancias entre muestras basándose en cuántas veces caen en las mismas hojas
