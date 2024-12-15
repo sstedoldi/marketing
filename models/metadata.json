@@ -1,7 +1,7 @@
 {
     "model": "LGBMClassifier",
     "package": "lightgbm==4.5.0",
-    "date": "15T-12-202417-19-53",
+    "date": "15T-12-202418-12-06",
     "opt_metric": "pr-auc",
     "val_score": 0.6975212709325839,
     "storage_name": "sqlite:///optimization/optimization_trees.db",
