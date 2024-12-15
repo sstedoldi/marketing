@@ -1,0 +1,29 @@
+{
+    "model": "LGBMClassifier",
+    "package": "lightgbm==4.5.0",
+    "date": "15T-12-202417-19-53",
+    "opt_metric": "pr-auc",
+    "val_score": 0.6975212709325839,
+    "storage_name": "sqlite:///optimization/optimization_trees.db",
+    "study_name": "exp_lgbm_local_v02",
+    "params": {
+        "n_estimators": 339,
+        "num_leaves": 32,
+        "learning_rate": 0.012922749679677987,
+        "subsample": 0.9151554492556478,
+        "colsample_bytree": 0.7332824700309769,
+        "n_jobs": -1
+    },
+    "cat_to1h": [
+        "job",
+        "marital",
+        "education",
+        "default",
+        "housing",
+        "loan",
+        "contact",
+        "month",
+        "day_of_week",
+        "poutcome"
+    ]
+}
