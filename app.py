@@ -28,26 +28,15 @@ app = Flask(__name__, static_folder='images')
 with app.app_context():
     ## context parameters
     current_directory = os.path.dirname(__file__)
-    # transformations
-    ###
-    # encodings
-    cate_to_oneHotEncoding = []
     # output paths
     output_pred_path = "predictions"
-    # feature engine
-    ###
-    # scalers
-    ###
     # models
     model_path = os.path.join(current_directory, "models/model_s217170.pkl")
-    model = LGBMClassifier()
-    model.load_model(model_path)
+    # model.load_model(model_path)
+    model = joblib.load(model_path)
     # print(model)
     # model features
-    with open(model_path, 'r') as model_file:
-        model_info = json.load(model_file)
-        model_features = model_info['learner']['feature_names']
-    model_file.close()
+    model_features = model.feature_name_
     # model metadata
     meta_path = os.path.join(current_directory, "models/metadata.json")
     with open(meta_path, 'r') as metadata_file:
@@ -58,8 +47,8 @@ with app.app_context():
 ### root
 @app.route('/')
 def index():
-    app_name = 'Synth_risk App Server'
-    program_name = 'CustomPortal Project'
+    app_name = 'ML Prospect Selection Assistant Server'
+    program_name = 'RockingData Challenge'
     author_name = 'SST'
     current_date = datetime.now().strftime("%Y-%m-%d")
     

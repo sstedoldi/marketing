@@ -12,14 +12,16 @@ install:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
 
-# run:
-# 	@echo "Running ia app locally..."
-# 	@echo "Checking and freeing port 5050 if in use..."
-# 	fuser -k 5050/tcp || true
-# 	$(PYTHON) app.py
+run:
+	@echo "Running ia app locally..."
+	@echo "Checking and freeing port 5000 if in use..."
+	fuser -k 5000/tcp || true
+	$(PYTHON) app.py
 
-# test:
-# 	$(PYTHON) -m unittest discover -s tests
+test:
+	$(PYTHON) test.py
+ 	# $(PYTHON) -m unittest discover -s tests
+
 
 clean:
 	find . -type f -name "*.pyc" -delete
